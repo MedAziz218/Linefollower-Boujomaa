@@ -5,7 +5,7 @@
 // pwm config
 #define PWM_Res 8
 #define PWM_Freq 100000
-
+#define ENCODER_TICK_MIN_DELAY 129
 // left motor pins
 #define PWM_CHANNEL_L 0
 #define PIN_PWM_L 33

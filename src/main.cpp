@@ -1,14 +1,21 @@
-
 #define DEBUG_SERIAL_PRINT 1
 /*===========================================
     Include Libraries
 ===========================================*/
+#ifndef INC_FREERTOS_H
+#include <freertos/FreeRTOS.h>
+#endif
+#ifndef INC_TASK_H
+#include <freertos/task.h>
+#endif
+
 #include "Arduino.h"
 #include "sensorsTCRT.h"
 #include "pid_classes.h"
 #include "motor_encoder.h"
 #include "speed_change.h"
 #include "arduino-timer.h"
+#include "my_timer.h"
 // #include "VL53L0X_sensor.h"
 /*===========================================
    Conditional Compilation for Debugging
@@ -43,7 +50,7 @@ PID_SwitchCase_Corrected_cls PID_SwitchCase_Corrected1;
 /*===========================================
              Define LED timer
 ===========================================*/
-auto ledTimer = timer_create_default(); // create a timer with default settings
+auto ledTimer = myTimer<5, millis>(); // create a timer with default settings
 bool redLedsOff(void *)
 {
     digitalWrite(PIN_LED1, LOW);
@@ -54,6 +61,21 @@ bool greenLedOff(void *)
 {
     digitalWrite(PIN_LED2, LOW);
     return false;
+}
+bool xx = true;
+bool toggle_pinLeds(void *)
+{
+    if (xx)
+    {
+        controlPIN_LEDs(1, 1, 1);
+        xx = false;
+    }
+    else
+    {
+        controlPIN_LEDs(0, 0, 0);
+        xx = true;
+    }
+    return true;
 }
 /*===========================================
     Wait for second button function
@@ -84,17 +106,32 @@ void setupPIN_LEDs()
 
     controlPIN_LEDs(0, 0, 0);
 }
+
+bool toggle_led(void *)
+{
+    digitalWrite(2, !digitalRead(2)); // toggle the LED
+    return true;                      // repeat? true
+}
+
 void setup()
 {
     DEBUG_LOG_BEGIN(monitor_speed);
     setupEncoders();
     setupMotors();
     setupSensors();
+    setupSpeedChange();
+    setupPIN_LEDs();
     // setupVL53L0X();
-    // setupPIN_LEDs();
+    pinMode(2, OUTPUT); // set LED pin to OUTPUT
+
+    // call the toggle_led function every 1000 millis (1 second)
+    // timer.every(1000000, toggle_led);
+    ledTimer.begin();
+    ledTimer.every(1000, toggle_pinLeds);
+    
     // controlPIN_LEDs(1, 1, 1);
 
-    waitForSecondButton();
+    // waitForSecondButton();
     // controlPIN_LEDs(0, 0, 0);
     DEBUG_LOGLN("setup done");
     // startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
@@ -115,12 +152,13 @@ void setup()
 
     // PID_SwitchCase_Corrected2.setBaseSpeed(190);
     // PID_SwitchCase_Corrected2.setKp_kd_min_max(25, 1, -150, 250);
+    // setupGPIOViewer();
 }
 
 /*===========================================
              Loop Function
 ===========================================*/
-// int n = 690; // test sensors
+int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
 // int n = 694; // test PID
@@ -130,7 +168,7 @@ void setup()
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
 // int n = -1; // start of maquette
-int n = 3000;
+// int n = 3000;
 
 void loop()
 {
@@ -138,10 +176,8 @@ void loop()
     unsigned int currentTime = millis();
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
-    speedChangeTimer.tick(); // tick the timer
-    ledTimer.tick();
     readSensors();
-    
+
     /*__________________________________MAQUETTE_____________________________________________________*/
     if (n == -1)
     {
@@ -338,7 +374,6 @@ void loop()
             delay(1000);
         }
     }
-
 }
 
 void printSensors()
@@ -366,8 +401,9 @@ void testDistanceSensor()
     // PID_Distance.Compute(dist);
     // delay(1000);
 }
-#else 
-void testDistanceSensor() {
+#else
+void testDistanceSensor()
+{
     DEBUG_LOGLN("Distance sensor not enabled");
 }
 #endif

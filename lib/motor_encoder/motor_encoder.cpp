@@ -10,7 +10,7 @@ volatile unsigned long encR_lastTickTime = 0;
 // Function to increment right encoder tick count (Do not use directly)
 void read_rightEncoder()
 {
-  if (micros() - encR_lastTickTime > 129)
+  if (micros() - encR_lastTickTime > ENCODER_TICK_MIN_DELAY)
   {
     encR_ticks++;
     encR_lastTickTime = micros();
@@ -19,7 +19,7 @@ void read_rightEncoder()
 // Function to increment left encoder tick count (Do not use directly)
 void read_leftEncoder()
 {
-  if (micros() - encL_lastTickTime > 129)
+  if (micros() - encL_lastTickTime > ENCODER_TICK_MIN_DELAY)
   {
     encL_ticks++;
     encL_lastTickTime = micros();

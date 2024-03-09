@@ -9,7 +9,7 @@ struct
 
 } speedChangeData;
 
-Timer<1, micros> speedChangeTimer; // create a timer with 1 task and microsecond resolution
+myTimer<1, micros> speedChangeTimer; // create a timer with 1 task and microsecond resolution
 
 bool _update_speed_step(void *)
 {
@@ -62,4 +62,8 @@ void startSpeedChange(_base_pid *_pid, int _startpeed, int _endspeed, int _start
   speedChangeData.startdist = _startdist;
   speedChangeData.enddist = _startdist + _durationdist;
   speedChangeTimer.every(1, _update_speed_step);
+}
+void setupSpeedChange()
+{
+  speedChangeTimer.begin();
 }
