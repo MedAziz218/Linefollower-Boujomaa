@@ -120,9 +120,9 @@ void setup()
     setupMotors();
     setupSensors();
     setupSpeedChange();
-    setupPIN_LEDs();
+    // setupPIN_LEDs();
     // setupVL53L0X();
-    pinMode(2, OUTPUT); // set LED pin to OUTPUT
+    pinMode(PIN_LED3, OUTPUT); // set LED pin to OUTPUT
 
     // call the toggle_led function every 1000 millis (1 second)
     // timer.every(1000000, toggle_led);
