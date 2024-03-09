@@ -4,9 +4,7 @@
 #ifndef SENSOR_COUNT
 #define SENSOR_COUNT 8
 #endif
-#ifndef DEBUG_SERIAL_PRINT
-#define DEBUG_SERIAL_PRINT 0
-#endif
+
 #include <Arduino.h>
 extern void setMotors(int speed1, int speed2); // Forward declaration of setMotors function
 extern bool s[];
@@ -24,6 +22,7 @@ public:
     int basespeed, minspeed, maxspeed;
     int lastOnLineError;
     int lastMoveLeft, lastMoveRight;
+    int lastError;
     // clang-format off
     void setKp_kd_min_max(int p_kp, int p_kd, int p_minspeed, int p_maxspeed){kp = p_kp; kd = p_kd;minspeed = p_minspeed;maxspeed = p_maxspeed;}
     void setKp(float p_kp){kp = p_kp;}
@@ -35,7 +34,7 @@ public:
     virtual void Compute() = 0;
 
 protected:
-    int lastError, P, D;
+    int  P, D;
     unsigned long lastProcess;
     void _compute_pid_and_setmotors(int error);
 };
@@ -47,7 +46,7 @@ public:
 
 protected:
     // clang-format off
-    int values[8];
+    int values[8] =  {-100, -50, -25, -10, 10, 25, 50, 100};
     void setValues(int vals[8]){ for (int i = 0; i < 8; i++)values[i] = vals[i]; };
     int _calculate_error_with_sum_method();
     // clang-format on

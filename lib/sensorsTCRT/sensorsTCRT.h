@@ -2,17 +2,6 @@
 #define SENSORTCRT_H
 #include <Arduino.h>
 
-#ifndef DEBUG_SERIAL_PRINT 
-#define DEBUG_SERIAL_PRINT 0
-#endif
-
-#if DEBUG_SERIAL_PRINT
-#define DEBUG_PRINT(x) Serial.print(x)
-#define DEBUG_PRINTLN(x) Serial.println(x)
-#else
-#define DEBUG_PRINT(x)
-#define DEBUG_PRINTLN(x)
-#endif
 
 #define SENSOR_COUNT 8
 

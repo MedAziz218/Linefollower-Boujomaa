@@ -55,11 +55,3 @@ void readSensors()
   }
 }
 
-void printSensors()
-{
-  for (int i = 0; i < SENSOR_COUNT; i++)
-  {
-    DEBUG_PRINT(s[i]);
-  }
-  DEBUG_PRINTLN(" // somme: " + String(somme) + " cnt: " + String(cnt));
-}

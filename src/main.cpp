@@ -4,20 +4,24 @@
     Include Libraries
 ===========================================*/
 #include "Arduino.h"
-#include "pid_classes.h"
 #include "sensorsTCRT.h"
+#include "pid_classes.h"
 #include "motor_encoder.h"
 #include "speed_change.h"
 #include "arduino-timer.h"
+// #include "VL53L0X_sensor.h"
 /*===========================================
    Conditional Compilation for Debugging
 ===========================================*/
-#if DEBUG_SERIAL_PRINT
-#define DEBUG_PRINT(x) Serial.print(x)
-#define DEBUG_PRINTLN(x) Serial.println(x)
+#define ENABLE_DEBUG_LOGGING 1
+#if ENABLE_DEBUG_LOGGING
+#define DEBUG_LOG(x) Serial.print(x)
+#define DEBUG_LOGLN(x) Serial.println(x)
+#define DEBUG_LOG_BEGIN(x) Serial.begin(x)
 #else
-#define DEBUG_PRINT(x)
-#define DEBUG_PRINTLN(x)
+#define DEBUG_LOG(x)
+#define DEBUG_LOGLN(x)
+#define DEBUG_LOG_BEGIN(x)
 #endif
 /*===========================================
              Define LED pins
@@ -25,20 +29,10 @@
 #define PIN_LED1 1
 #define PIN_LED2 3
 #define PIN_LED3 2
-void controlPIN_LEDs(bool a, bool b, bool c)
-{
-    digitalWrite(PIN_LED1, a ? HIGH : LOW);
-    digitalWrite(PIN_LED2, b ? HIGH : LOW);
-    digitalWrite(PIN_LED3, c ? HIGH : LOW);
-}
-void setupPIN_LEDs()
-{
-    pinMode(PIN_LED1, OUTPUT);
-    pinMode(PIN_LED2, OUTPUT);
-    pinMode(PIN_LED3, OUTPUT);
 
-    controlPIN_LEDs(0, 0, 0);
-}
+void printSensors();
+void controlPIN_LEDs(bool a, bool b, bool c);
+
 /*===========================================
              Define PID instances
 ===========================================*/
@@ -69,7 +63,7 @@ void waitForSecondButton()
     pinMode(32, INPUT_PULLUP);
     while (digitalRead(32))
     {
-        DEBUG_PRINTLN("hola");
+        DEBUG_LOGLN("hola");
     }
 }
 /*===========================================
@@ -82,23 +76,32 @@ unsigned int lastTicks = 0;
 /*===========================================
              Setup Function
 ===========================================*/
+void setupPIN_LEDs()
+{
+    pinMode(PIN_LED1, OUTPUT);
+    pinMode(PIN_LED2, OUTPUT);
+    pinMode(PIN_LED3, OUTPUT);
+
+    controlPIN_LEDs(0, 0, 0);
+}
 void setup()
 {
-#if DEBUG
-    Serial.begin(115200);
-#endif
+    DEBUG_LOG_BEGIN(monitor_speed);
     setupEncoders();
     setupMotors();
     setupSensors();
-    controlPIN_LEDs(1, 1, 1);
-    waitForSecondButton();
-    controlPIN_LEDs(0, 0, 0);
+    // setupVL53L0X();
+    // setupPIN_LEDs();
+    // controlPIN_LEDs(1, 1, 1);
 
-    startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
+    waitForSecondButton();
+    // controlPIN_LEDs(0, 0, 0);
+    DEBUG_LOGLN("setup done");
+    // startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
     PID_Sum_Uncorrected1.setKp_kd_min_max(1.2, 0.2, -50, 180);
     PID_Sum_Uncorrected1.setBaseSpeed(120);
 
-    PID_Sum_Corrected1.setBaseSpeed(190);
+    PID_Sum_Corrected1.setBaseSpeed(120);
     PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
 
     // PID_Sum_Corrected2.setBaseSpeed(120);
@@ -117,15 +120,18 @@ void setup()
 /*===========================================
              Loop Function
 ===========================================*/
-int n = 690; // test sensors
+// int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
 // int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test Acceleration
-// int n== 700; // test pin leds
+// int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
+// int n = -1; // start of maquette
+int n = 3000;
+
 void loop()
 {
 
@@ -135,8 +141,8 @@ void loop()
     speedChangeTimer.tick(); // tick the timer
     ledTimer.tick();
     readSensors();
+    
     /*__________________________________MAQUETTE_____________________________________________________*/
-    // TODO: implement maquette
     if (n == -1)
     {
         setMotors(120, 120);
@@ -150,6 +156,60 @@ void loop()
             PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, 0, 200);
         }
     }
+    else if (n == 0)
+    {
+    }
+    else if (n == 1)
+    {
+    }
+    /*__________________________________DEBUGGING_______________________________________________________*/
+    if (n == 200)
+    {
+        setMotors(-10, -10);
+        delay(50);
+        setMotors(0, 0);
+        n = 201;
+    }
+    if (n == 201)
+    {
+    }
+    if (n == 100)
+    {
+        setMotors(0, 0);
+        delay(50);
+        setMotors(0, 0);
+        lastTime = millis();
+        while ((get_encL() || get_encR()))
+        {
+            reset_encL();
+            reset_encR();
+            delay(500);
+        }
+        n = 102;
+    }
+    if (n == 101)
+    {
+        setMotors(0, 0);
+        delay(500);
+        n = 102;
+    }
+    if (n == 102)
+    {
+        if ((millis() - lastTime) > 500 && (millis() - lastTime) < 1000)
+        {
+            digitalWrite(PIN_LED1, HIGH);
+            digitalWrite(PIN_LED2, HIGH);
+            digitalWrite(PIN_LED3, HIGH);
+        }
+        else if ((millis() - lastTime) > 1000)
+        {
+            digitalWrite(PIN_LED1, LOW);
+            digitalWrite(PIN_LED2, LOW);
+            digitalWrite(PIN_LED3, LOW);
+            lastTime = millis();
+        }
+        DEBUG_LOG("Left Encoder: " + String(currentEncL) + " Right Encoder: " + String(currentEncR) + "\n");
+    }
     /*__________________________________TESTs_______________________________________________________*/
     // test Motors+Encoders
     if (n == 695)
@@ -157,10 +217,10 @@ void loop()
         delay(1000);
         while (get_encL() < 103 * 1)
         {
-            DEBUG_PRINT("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
+            DEBUG_LOG("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
             setMotors(150, 0);
         }
-        DEBUG_PRINT("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
+        DEBUG_LOG("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
         setMotors(0, 0);
         delay(1000);
         // ***********************
@@ -168,11 +228,11 @@ void loop()
 
         while (get_encR() < 103 * 1)
         {
-            DEBUG_PRINT("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
+            DEBUG_LOG("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
 
             setMotors(0, 150);
         }
-        DEBUG_PRINT("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
+        DEBUG_LOG("Left Encoder: " + String(get_encL()) + " Right Encoder: " + String(get_encR()) + "\n");
         setMotors(0, 0);
         delay(1000);
         n = 3000;
@@ -180,8 +240,13 @@ void loop()
     // test pid
     if (n == 694)
     {
+        _base_pid *testPID = &PID_SwitchCase_Corrected1;
         readSensors();
-        PID_SwitchCase_Corrected1.Compute();
+        testPID->Compute();
+        int ll = testPID->lastMoveLeft;
+        int rr = testPID->lastMoveRight;
+        int err = testPID->lastError;
+        DEBUG_LOG("error: " + String(err) + " Left speed: " + String(ll) + " Right Speed: " + String(rr) + "\n");
     }
 
     // test Motors
@@ -211,15 +276,15 @@ void loop()
     {
         if (get_encL() > 106 * 3)
         {
-            DEBUG_PRINTLN("left wheel made 1 round");
+            DEBUG_LOGLN("left wheel made 1 round");
             reset_encL();
         }
         if (get_encR() > 106 * 3)
         {
-            DEBUG_PRINTLN("right wheel made 1 round");
+            DEBUG_LOGLN("right wheel made 1 round");
             reset_encR();
         }
-        DEBUG_PRINT("Left Encoder: " + String(currentEncL) + " Right Encoder: " + String(currentEncR) + "\n");
+        DEBUG_LOG("Left Encoder: " + String(currentEncL) + " Right Encoder: " + String(currentEncR) + "\n");
     }
     //-- test Acceleration
     if (n == 696)
@@ -227,18 +292,18 @@ void loop()
 
         if (get_phase() == 0 && !isSpeedChangeRunning())
         {
-            DEBUG_PRINTLN("phase 0 " + String(PID_Sum_Corrected1.basespeed));
+            DEBUG_LOGLN("phase 0 " + String(PID_Sum_Corrected1.basespeed));
             reset_encoders();
             startSpeedChange(&PID_Sum_Corrected1, 120, 255, 0, 103 * 2 * 2);
         }
         if (get_phase() == 1 && !isSpeedChangeRunning())
         {
-            DEBUG_PRINTLN("phase 1 " + String(PID_Sum_Corrected1.basespeed));
+            DEBUG_LOGLN("phase 1 " + String(PID_Sum_Corrected1.basespeed));
             startSpeedChange(&PID_Sum_Corrected1, 255, 90, 103 * 3 * 2, 103 * 2 * 2);
         }
         if (get_phase() == 2 && !isSpeedChangeRunning())
         {
-            DEBUG_PRINTLN("done " + String(PID_Sum_Corrected1.basespeed));
+            DEBUG_LOGLN("done " + String(PID_Sum_Corrected1.basespeed));
             setMotors(0, 0);
             delay(2000);
             n = 101;
@@ -273,4 +338,36 @@ void loop()
             delay(1000);
         }
     }
+
 }
+
+void printSensors()
+{
+    for (int i = 0; i < SENSOR_COUNT; i++)
+    {
+        DEBUG_LOG(s[i]);
+    }
+    DEBUG_LOGLN(" // somme: " + String(somme) + " cnt: " + String(cnt));
+}
+
+void controlPIN_LEDs(bool a, bool b, bool c)
+{
+    digitalWrite(PIN_LED1, a ? HIGH : LOW);
+    digitalWrite(PIN_LED2, b ? HIGH : LOW);
+    digitalWrite(PIN_LED3, c ? HIGH : LOW);
+}
+#ifdef ENABLE_DISTANCE_SENSOR
+void testDistanceSensor()
+{
+    unsigned long dt = micros();
+    int dist = lox.readRange();
+    dt = micros() - dt;
+    DEBUG_LOGLN("dt:" + String(dt) + " --  Distance (mm): " + String(dist));
+    // PID_Distance.Compute(dist);
+    // delay(1000);
+}
+#else 
+void testDistanceSensor() {
+    DEBUG_LOGLN("Distance sensor not enabled");
+}
+#endif

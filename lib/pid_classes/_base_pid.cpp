@@ -13,8 +13,8 @@ void _base_pid::_compute_pid_and_setmotors(int error)
 
     double mv = P + D;
     int moveVal = (int)(P + D);
-    int moveLeft = basespeed - moveVal;
-    int moveRight = basespeed + moveVal;
+    int moveLeft = basespeed + moveVal;
+    int moveRight = basespeed - moveVal;
 
     moveLeft = constrain(moveLeft, minspeed, maxspeed);
     moveRight = constrain(moveRight, minspeed, maxspeed);
