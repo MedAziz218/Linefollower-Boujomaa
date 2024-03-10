@@ -38,7 +38,9 @@
 #define PIN_LED3 2
 
 void printSensors();
+bool testPIN_LEDS(void *);
 void controlPIN_LEDs(bool a, bool b, bool c);
+void controlPIN_LEDs(int x);
 
 /*===========================================
              Define PID instances
@@ -120,7 +122,7 @@ void setup()
     setupMotors();
     setupSensors();
     setupSpeedChange();
-    // setupPIN_LEDs();
+    setupPIN_LEDs();
     // setupVL53L0X();
     pinMode(PIN_LED3, OUTPUT); // set LED pin to OUTPUT
 
@@ -128,7 +130,7 @@ void setup()
     // timer.every(1000000, toggle_led);
     ledTimer.begin();
     ledTimer.every(1000, toggle_pinLeds);
-    
+
     // controlPIN_LEDs(1, 1, 1);
 
     // waitForSecondButton();
@@ -158,13 +160,13 @@ void setup()
 /*===========================================
              Loop Function
 ===========================================*/
-int n = 690; // test sensors
+// int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
 // int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test Acceleration
-// int n = 700; // test pin leds
+int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
 // int n = -1; // start of maquette
@@ -172,7 +174,6 @@ int n = 690; // test sensors
 
 void loop()
 {
-
     unsigned int currentTime = millis();
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
@@ -350,29 +351,9 @@ void loop()
     }
     if (n == 700)
     {
-        while (1)
-        {
-            digitalWrite(PIN_LED1, HIGH);
-            digitalWrite(PIN_LED2, LOW);
-            digitalWrite(PIN_LED3, HIGH);
-
-            delay(1000);
-            digitalWrite(PIN_LED1, LOW);
-            digitalWrite(PIN_LED2, HIGH);
-            digitalWrite(PIN_LED3, LOW);
-
-            delay(1000);
-            digitalWrite(PIN_LED1, HIGH);
-            digitalWrite(PIN_LED2, HIGH);
-            digitalWrite(PIN_LED3, HIGH);
-
-            delay(1000);
-            digitalWrite(PIN_LED1, LOW);
-            digitalWrite(PIN_LED2, LOW);
-            digitalWrite(PIN_LED3, LOW);
-
-            delay(1000);
-        }
+        ledTimer.cancel();
+        ledTimer.every(45, testPIN_LEDS);
+        n = 690;
     }
 }
 
@@ -385,11 +366,79 @@ void printSensors()
     DEBUG_LOGLN(" // somme: " + String(somme) + " cnt: " + String(cnt));
 }
 
+void controlPIN_LEDs(int x)
+{
+    bool a = x & 0b100;
+    bool b = x & 0b010;
+    bool c = x & 0b001;
+    controlPIN_LEDs(a, b, c);
+}
 void controlPIN_LEDs(bool a, bool b, bool c)
 {
+
     digitalWrite(PIN_LED1, a ? HIGH : LOW);
     digitalWrite(PIN_LED2, b ? HIGH : LOW);
     digitalWrite(PIN_LED3, c ? HIGH : LOW);
+}
+int test_PIN_LEDS_Var = 0;
+bool testPIN_LEDS(void *)
+{
+
+    // clang-format off
+    short anim[] = {
+        0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
+        0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
+        0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
+        0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
+        
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+        0b000, 0b000, 0b001, 0b001, 0b011, 0b011, 0b111, 0b111, 0b110, 0b110, 0b100, 0b100, 0b000, 0b000,
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+        0b000, 0b000, 0b001, 0b001, 0b011, 0b011, 0b111, 0b111, 0b110, 0b110, 0b100, 0b100, 0b000, 0b000,
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+
+        0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000, 0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 
+        0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000, 0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 
+        0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000, 0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 
+        0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000, 0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 
+        
+        0b000, 0b000, 0b001, 0b001, 0b011, 0b011, 0b111, 0b111, 0b110, 0b110, 0b100, 0b100, 0b000, 0b000,
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+        0b000, 0b000, 0b100, 0b100, 0b110, 0b110, 0b111, 0b111, 0b011, 0b011, 0b001, 0b001, 0b000, 0b000,
+        
+        0b000, 0b000, 0b001, 0b001, 0b011, 0b011, 0b111, 0b111, 0b110, 0b110, 0b100, 0b100, 0b000, 0b000,
+        0b000, 0b000, 0b001, 0b001, 0b011, 0b011, 0b111, 0b111, 0b110, 0b110, 0b100, 0b100, 0b000, 0b000,
+        
+        0b000, 0b000, 0b000, 0b000, 0b000, 0b000, 0b000,
+        0b111, 0b111, 0b111, 0b111, 0b111, 0b111, 0b111, 
+        
+        0b000, 0b000, 0b000, 0b000, 0b000, 0b000, 0b000,
+        
+        0b101, 0b101, 0b101, 0b101, 0b101, 0b101, 0b101, 
+        0b010, 0b010, 0b010, 0b010, 0b010, 0b010, 0b010, 
+        
+        0b000, 0b000, 0b000, 0b000, 0b000, 0b000, 0b000,
+                
+        0b010, 0b010, 0b010, 0b010, 0b010, 0b010, 0b010, 
+        0b101, 0b101, 0b101, 0b101, 0b101, 0b101, 0b101, 
+        
+        0b000, 0b000, 0b000, 0b000, 0b000, 0b000, 0b000,
+
+        0b111, 0b111, 0b111, 
+        0b000, 0b000, 0b000,
+        0b111, 0b111, 0b111, 
+        0b000, 0b000, 0b000,};
+    // clang-format on
+
+    controlPIN_LEDs(anim[test_PIN_LEDS_Var]);
+    test_PIN_LEDS_Var++;
+    if (test_PIN_LEDS_Var >= sizeof(anim) / sizeof(anim[0]))
+    {
+        test_PIN_LEDS_Var = 0;
+    }
+    return true;
 }
 #ifdef ENABLE_DISTANCE_SENSOR
 void testDistanceSensor()
