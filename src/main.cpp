@@ -385,7 +385,7 @@ bool testPIN_LEDS(void *)
 {
 
     // clang-format off
-    short anim[] = {
+    byte anim[] = {
         0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
         0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
         0b000, 0b100, 0b110, 0b111, 0b011, 0b001, 0b000, 0b000, 0b001, 0b011, 0b111, 0b110, 0b100, 0b000,
@@ -431,7 +431,6 @@ bool testPIN_LEDS(void *)
         0b111, 0b111, 0b111, 
         0b000, 0b000, 0b000,};
     // clang-format on
-
     controlPIN_LEDs(anim[test_PIN_LEDS_Var]);
     test_PIN_LEDS_Var++;
     if (test_PIN_LEDS_Var >= sizeof(anim) / sizeof(anim[0]))
