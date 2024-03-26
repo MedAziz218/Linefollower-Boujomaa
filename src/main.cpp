@@ -11,8 +11,8 @@
 
 #include "Arduino.h"
 #include "sensorsTCRT.h"
-#include "pid_classes.h"
 #include "motor_encoder.h"
+#include "pid_classes.h"
 #include "speed_change.h"
 #include "arduino-timer.h"
 
@@ -131,7 +131,7 @@ void setup()
     ledTimer.every(1000, toggle_pinLeds);
 
     controlPIN_LEDs(1, 1, 1);
-
+    
     waitForSecondButton();
     controlPIN_LEDs(0, 0, 0);
     DEBUG_LOGLN("setup done");
@@ -139,10 +139,10 @@ void setup()
     PID_Sum_Uncorrected1.setKp_kd_min_max(1.2, 0.2, -50, 180);
     PID_Sum_Uncorrected1.setBaseSpeed(120);
     //this is well tuned pid
-    PID_Sum_Corrected1.setBaseSpeed(120);
-    PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
-    // PID_Sum_Corrected1.setBaseSpeed(150);
-    // PID_Sum_Corrected1.setKp_kd_min_max(2, 2, -240, 240 );
+    // PID_Sum_Corrected1.setBaseSpeed(120);
+    // PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+    PID_Sum_Corrected1.setBaseSpeed(150);
+    PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 240 );
     
 
     // PID_Sum_Corrected2.setBaseSpeed(120);
@@ -180,6 +180,7 @@ void loop()
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
     readSensors();
+   
 
     /*__________________________________MAQUETTE_____________________________________________________*/
     if (n == -1)

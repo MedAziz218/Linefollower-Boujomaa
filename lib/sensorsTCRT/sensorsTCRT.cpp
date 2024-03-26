@@ -7,7 +7,6 @@ float lastOnLineSomme = 0;
 float somme = 0;
 int cnt = 0;
 bool onLine = 0;
-
 bool lineColor = BLACK_LINE;
 
 void setupSensors()
