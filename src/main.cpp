@@ -131,19 +131,18 @@ void setup()
     ledTimer.every(1000, toggle_pinLeds);
 
     controlPIN_LEDs(1, 1, 1);
-    
+
     waitForSecondButton();
     controlPIN_LEDs(0, 0, 0);
     DEBUG_LOGLN("setup done");
     // startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
     PID_Sum_Uncorrected1.setKp_kd_min_max(1.2, 0.2, -50, 180);
     PID_Sum_Uncorrected1.setBaseSpeed(120);
-    //this is well tuned pid
-    // PID_Sum_Corrected1.setBaseSpeed(120);
-    // PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+    // this is well tuned pid
+    //  PID_Sum_Corrected1.setBaseSpeed(120);
+    //  PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
     PID_Sum_Corrected1.setBaseSpeed(150);
-    PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 240 );
-    
+    PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 240);
 
     // PID_Sum_Corrected2.setBaseSpeed(120);
     // PID_Sum_Corrected2.setKp_kd_min_max(1.2, 0.5, -140, 160);
@@ -157,6 +156,7 @@ void setup()
     // PID_SwitchCase_Corrected2.setBaseSpeed(190);
     // PID_SwitchCase_Corrected2.setKp_kd_min_max(25, 1, -150, 250);
     // setupGPIOViewer();
+    lastTime = millis();
 }
 
 /*===========================================
@@ -165,13 +165,13 @@ void setup()
 // int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
-int n = 694; // test PID
+// int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test Acceleration
 // int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
-// int n = -1; // start of maquette
+int n = -1; // start of maquette
 // int n = 3000;
 
 void loop()
@@ -180,28 +180,109 @@ void loop()
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
     readSensors();
-   
+    speedChangeTimer.tick();
 
     /*__________________________________MAQUETTE_____________________________________________________*/
     if (n == -1)
     {
         setMotors(120, 120);
-        if ((dataSensor != 0b11111111) && (currentTime - lastTime > 200))
+        if ((dataSensor != 0b11111111) || (currentTime - lastTime > 200))
         {
-            n++;
+
             lastTime = millis();
             reset_encoders();
-            PID_Sum_Corrected1.setBaseSpeed(200);
+            // PID_Sum_Corrected1.setBaseSpeed(200);
             // PID_Sum_Corrected1.setKp_kd_min_max(2, 0.5, 90, 220);
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, 0, 200);
+            // PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, 0, 255);
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -240, 255);
+
+            reset_encoders();
+            startSpeedChange(&PID_Sum_Corrected1, 150, 255, 0, 103 * 2 * 0.5);
+            controlPIN_LEDs(0, 0, 1);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
         }
     }
     else if (n == 0)
     {
+
+        if (get_encoders() > 103 * 2 * 3.7)
+        {
+            // ebda na9as 9bal dora loula isar
+            reset_encoders();
+            startSpeedChange(&PID_Sum_Corrected1, 255, 120, 0, 103 * 2 * 0.5);
+            n++;
+            controlPIN_LEDs(1, 0, 1);
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
     }
     else if (n == 1)
     {
+        if (get_encoders() > 103 * 2 * 0.5)
+        {
+            // cbon kamal na9as 9bal dora loula isar
+            // PID_Sum_Corrected1.setBaseSpeed(120);
+            // PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+            PID_Sum_Corrected1.setBaseSpeed(120);
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 220);
+            controlPIN_LEDs(0, 0, 0);
+            reset_encoders();
+            // TODO: Make this possible 
+            // FIXME: or fix it
+            startSpeedChange(&PID_Sum_Corrected1, 120, 170, 103 * 2 * 1, 103 * 2 * 0.5);
+            startSpeedChange(&PID_Sum_Corrected1, 120, 170, 103 * 2 * 3, 103 * 2 * 0.5);
+
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
     }
+    else if (n == 2)
+    {
+        if (get_encoders() > 103 * 2 * 10)
+        {
+            // kamalna sinuset
+            // jeya dora 3al isar
+            controlPIN_LEDs(0, 1, 0);
+            reset_encoders();
+            startSpeedChange(&PID_Sum_Corrected1, 170, 120, 0, 103 * 2 * 0.5);
+
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 3)
+    {
+        if (get_encoders() > 103 * 2 * 1 && somme <= 2)
+        {
+            // fi wst el dora
+            controlPIN_LEDs(0, 1, 0);
+            reset_encoders();
+            PID_Sum_Corrected1.setBaseSpeed(120);
+            // PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 220);
+            PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+            startSpeedChange(&PID_Sum_Corrected1, 120, 255, 103 * 2 * 1, 103 * 2 * 0.5);
+            startSpeedChange(&PID_Sum_Corrected1, 255, 120, 103 * 2 * 1, 103 * 2 * 0.5);
+
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+
     /*__________________________________DEBUGGING_______________________________________________________*/
     if (n == 200)
     {
