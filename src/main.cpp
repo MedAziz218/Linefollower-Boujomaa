@@ -128,20 +128,22 @@ void setup()
 
     // call the toggle_led function every 1000 millis (1 second)
     // timer.every(1000000, toggle_led);
-    ledTimer.begin();
     ledTimer.every(1000, toggle_pinLeds);
 
-    // controlPIN_LEDs(1, 1, 1);
+    controlPIN_LEDs(1, 1, 1);
 
-    // waitForSecondButton();
-    // controlPIN_LEDs(0, 0, 0);
+    waitForSecondButton();
+    controlPIN_LEDs(0, 0, 0);
     DEBUG_LOGLN("setup done");
     // startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
     PID_Sum_Uncorrected1.setKp_kd_min_max(1.2, 0.2, -50, 180);
     PID_Sum_Uncorrected1.setBaseSpeed(120);
-
+    //this is well tuned pid
     PID_Sum_Corrected1.setBaseSpeed(120);
     PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+    // PID_Sum_Corrected1.setBaseSpeed(150);
+    // PID_Sum_Corrected1.setKp_kd_min_max(2, 2, -240, 240 );
+    
 
     // PID_Sum_Corrected2.setBaseSpeed(120);
     // PID_Sum_Corrected2.setKp_kd_min_max(1.2, 0.5, -140, 160);
@@ -163,10 +165,10 @@ void setup()
 // int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
-// int n = 694; // test PID
+int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test Acceleration
-int n = 700; // test pin leds
+// int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
 // int n = -1; // start of maquette
@@ -277,13 +279,13 @@ void loop()
     // test pid
     if (n == 694)
     {
-        _base_pid *testPID = &PID_SwitchCase_Corrected1;
+        _base_pid *testPID = &PID_Sum_Corrected1;
         readSensors();
         testPID->Compute();
-        int ll = testPID->lastMoveLeft;
-        int rr = testPID->lastMoveRight;
-        int err = testPID->lastError;
-        DEBUG_LOG("error: " + String(err) + " Left speed: " + String(ll) + " Right Speed: " + String(rr) + "\n");
+        // int ll = testPID->lastMoveLeft;
+        // int rr = testPID->lastMoveRight;
+        // int err = testPID->lastError;
+        // DEBUG_LOG("error: " + String(err) + " Left speed: " + String(ll) + " Right Speed: " + String(rr) + "\n");
     }
 
     // test Motors
