@@ -3,12 +3,11 @@
 #include "Arduino.h"
 #include "pid_classes.h"
 #include "motor_encoder.h"
-#include "my_timer.h"
-// #include "arduino-timer.h"
+#include "arduino-timer.h"
 /*===========================================
     Define Speed Change Data and Timer
 ===========================================*/
-extern myTimer<1, micros> speedChangeTimer;
+extern Timer<1, micros> speedChangeTimer;
 bool isSpeedChangeRunning();
 void reset_phase();
 int get_phase();

@@ -15,7 +15,7 @@
 #include "motor_encoder.h"
 #include "speed_change.h"
 #include "arduino-timer.h"
-#include "my_timer.h"
+
 // #include "VL53L0X_sensor.h"
 /*===========================================
    Conditional Compilation for Debugging
@@ -52,7 +52,7 @@ PID_SwitchCase_Corrected_cls PID_SwitchCase_Corrected1;
 /*===========================================
              Define LED timer
 ===========================================*/
-auto ledTimer = myTimer<5, millis>(); // create a timer with default settings
+auto ledTimer = Timer<5, millis>(); // create a timer with default settings
 bool redLedsOff(void *)
 {
     digitalWrite(PIN_LED1, LOW);
