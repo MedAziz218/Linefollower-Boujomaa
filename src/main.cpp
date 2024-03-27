@@ -183,18 +183,7 @@ int n = 694; // test PID
 int x = 0;
 void loop()
 {
-
-    if (x == 0)
-    {
-        lastTime = millis();
-    }
-    if (x == 1000)
-    {
-        Serial.println("1000 loops done in " + String(millis() - lastTime) + " ms");
-        Serial.println("1 loop per " + String(float(millis() - lastTime) / 1000) + " ms");
-        x = -1;
-    }
-    x++;
+ 
     unsigned int currentTime = millis();
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
