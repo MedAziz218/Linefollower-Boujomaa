@@ -13,6 +13,9 @@ struct _speedChangeTask
     _base_pid *chosen_pid_instance;
     int startpeed, endspeed;
     int startdist, enddist;
+    bool apply_when_done;
+    float kp,kd;
+    int minspeed,maxspeed;
 };
 
 class SpeedChanger_cls
@@ -40,6 +43,9 @@ private:
             // DEBUG_PRINT("End Acceleration: " + String(chosen_pid_instance->basespeed)+" millis: "+String(dist) );
             // DEBUG_PRINTLN(" x " + String(x));
             _change_in_progress = false;
+            if (current_task.apply_when_done){
+                chosen_pid_instance->setKp_kd_min_max(current_task.kp, current_task.kd, current_task.minspeed, current_task.maxspeed);
+            }
             return false;
         }
         // DEBUG_PRINT("Acceleration: " + String(chosen_pid_instance->basespeed)+" millis: "+String(dist));
@@ -73,6 +79,9 @@ private:
 
 public:
     bool started = false;
+    bool isEmpty(){
+        return !_change_in_progress && speedChangeQueue.isEmpty();
+    }
     void begin()
     {
         if (started)
@@ -85,15 +94,28 @@ public:
             .name = "MyTimerTask"};
         esp_timer_create(&timer_args, &timer_handle);
         // Start the timer to trigger the callback function every  (100 microseconds)
-        esp_timer_start_periodic(timer_handle, 500);
+        esp_timer_start_periodic(timer_handle, 50);
     }
     void add(_base_pid *_pid, int _startpeed, int _endspeed, int _startdist, int _durationdist)
     {
         if (!speedChangeQueue.isFull())
         {
-            speedChangeQueue.enqueue({_pid, _startpeed, _endspeed, _startdist, _startdist + _durationdist});
+            speedChangeQueue.enqueue( {_pid, _startpeed, _endspeed, _startdist, _startdist + _durationdist,false,0,0,0,0});
+            if (!_change_in_progress){
+                tick();
+            }
         }
     };
+    void add_apply_when_done(float kp, float kd, int minspeed, int maxspeed){
+        if (!speedChangeQueue.isEmpty()){
+            _speedChangeTask &tk = speedChangeQueue.peekRear();
+            tk.kp = kp;
+            tk.kd = kd;
+            tk.minspeed = minspeed;
+            tk.maxspeed = maxspeed;
+            tk.apply_when_done = true;
+        }
+    }
 };
 void setupSpeedChange();
 

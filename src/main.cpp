@@ -16,11 +16,12 @@
 #include "speed_change.h"
 #include "arduino-timer.h"
 
+#define p2t(x) 103 * 2 * x
 // #include "VL53L0X_sensor.h"
 /*===========================================
    Conditional Compilation for Debugging
 ===========================================*/
-#define ENABLE_DEBUG_LOGGING 1
+#define ENABLE_DEBUG_LOGGING 0
 #if ENABLE_DEBUG_LOGGING
 #define DEBUG_LOG(x) Serial.print(x)
 #define DEBUG_LOGLN(x) Serial.println(x)
@@ -54,6 +55,11 @@ PID_SwitchCase_Corrected_cls PID_SwitchCase_Corrected1;
              Define LED timer
 ===========================================*/
 auto ledTimer = Timer<5, millis>(); // create a timer with default settings
+const int checkpoint_anim[] = {0b000, 0b100, 0b110, 0b111};
+void show_checkpoint(int n)
+{
+    controlPIN_LEDs(checkpoint_anim[n % 4]);
+}
 bool redLedsOff(void *)
 {
     digitalWrite(PIN_LED1, LOW);
@@ -172,18 +178,17 @@ void setup()
 // int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
-int n = 694; // test PID
+// int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test speedchange
 // int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
-// int n = -1; // start of maquette
-// int n = 3000;
-int x = 0;
+int n = -1; // start of maquette
+
 void loop()
 {
- 
+
     unsigned int currentTime = millis();
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
@@ -205,9 +210,51 @@ void loop()
     }
     else if (n == 0)
     {
+        if (cnt && somme == 3.5)
+        {
+            show_checkpoint(n);
+            // ebda na9as 9bal dora loula isar
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
+            SpeedChanger.add(&PID_Sum_Corrected1, 150, 255, p2t(0), p2t(0.5));
+        
+            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(3.7), p2t(0.5));
+            SpeedChanger.add_apply_when_done(1.9, 0.5, -220, 220);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
     }
     else if (n == 1)
     {
+        if (SpeedChanger.isEmpty())
+        {
+            show_checkpoint(n);
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 220);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, 103 * 2 * 2, 103 * 2 * 1);
+            // SpeedChanger.add(&PID_Sum_Corrected1, 170, 50, 103 * 8 * 3, 103 * 2 * 1);
+
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 2)
+    {
+        if (get_encoders() > 103 * 2 * 10)
+        {
+            show_checkpoint(n);
+            n = 100;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
     }
     /*__________________________________DEBUGGING_______________________________________________________*/
 

@@ -54,11 +54,11 @@ extern int lastOnLineDataSensor;
 class _base_pid
 {
 public:
-    int kp;
-    int kd;
+    float kp;
+    float kd;
     int basespeed, minspeed, maxspeed;
-    int lastOnLineError;
     int lastMoveLeft, lastMoveRight;
+    int lastOnLineError;
     int lastError;
     // clang-format off
     void setKp_kd_min_max(int p_kp, int p_kd, int p_minspeed, int p_maxspeed){kp = p_kp; kd = p_kd;minspeed = p_minspeed;maxspeed = p_maxspeed;}
@@ -71,7 +71,7 @@ public:
     virtual void Compute() = 0;
 
 protected:
-    int  P, D;
+    double  P, D;
     unsigned long lastProcess;
     void _compute_pid_and_setmotors(int error);
 };
