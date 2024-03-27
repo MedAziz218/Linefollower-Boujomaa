@@ -1,4 +1,4 @@
-#define DEBUG_SERIAL_PRINT 1
+
 /*===========================================
     Include Libraries
 ===========================================*/
@@ -49,6 +49,7 @@ PID_Sum_Uncorrected_cls PID_Sum_Uncorrected1;
 PID_SwitchCase_Uncorrected_cls PID_SwitchCase_Uncorrected1;
 PID_Sum_Corrected_cls PID_Sum_Corrected1;
 PID_SwitchCase_Corrected_cls PID_SwitchCase_Corrected1;
+
 /*===========================================
              Define LED timer
 ===========================================*/
@@ -93,6 +94,7 @@ void waitForSecondButton()
 /*===========================================
              Global Variables
 ===========================================*/
+SpeedChanger_cls SpeedChanger;
 unsigned int lastTime = millis();
 unsigned int lastEncL = 0;
 unsigned int lastEncR = 0;
@@ -117,33 +119,34 @@ bool toggle_led(void *)
 
 void setup()
 {
-    DEBUG_LOG_BEGIN(monitor_speed);
+    if (ENABLE_DEBUG_LOGGING)
+        DEBUG_LOG_BEGIN(monitor_speed);
+    else
+        setupPIN_LEDs();
     setupEncoders();
     setupMotors();
     setupSensors();
-    setupSpeedChange();
-    setupPIN_LEDs();
+
     // setupVL53L0X();
     pinMode(PIN_LED3, OUTPUT); // set LED pin to OUTPUT
 
     // call the toggle_led function every 1000 millis (1 second)
     // timer.every(1000000, toggle_led);
-    ledTimer.every(1000, toggle_pinLeds);
+    // ledTimer.every(1000, toggle_pinLeds);
 
     controlPIN_LEDs(1, 1, 1);
-    
+
     waitForSecondButton();
     controlPIN_LEDs(0, 0, 0);
     DEBUG_LOGLN("setup done");
-    // startSpeedChange(&PID_Sum_Corrected1, 0, 0, 0, 0);
+
     PID_Sum_Uncorrected1.setKp_kd_min_max(1.2, 0.2, -50, 180);
     PID_Sum_Uncorrected1.setBaseSpeed(120);
-    //this is well tuned pid
-    // PID_Sum_Corrected1.setBaseSpeed(120);
-    // PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+    // this is well tuned pid
+    //  PID_Sum_Corrected1.setBaseSpeed(120);
+    //  PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
     PID_Sum_Corrected1.setBaseSpeed(150);
-    PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 240 );
-    
+    PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -220, 240);
 
     // PID_Sum_Corrected2.setBaseSpeed(120);
     // PID_Sum_Corrected2.setKp_kd_min_max(1.2, 0.5, -140, 160);
@@ -157,6 +160,10 @@ void setup()
     // PID_SwitchCase_Corrected2.setBaseSpeed(190);
     // PID_SwitchCase_Corrected2.setKp_kd_min_max(25, 1, -150, 250);
     // setupGPIOViewer();
+    SpeedChanger.begin();
+    // SpeedChanger.add(&PID_Sum_Corrected1, 120, 200, 0, 103 * 2 * 0.5);
+    // SpeedChanger.add(&PID_Sum_Corrected1, 200, 70, 103 * 2 * 3.5, 103 * 2 * 0.5);
+    // SpeedChanger.add(&PID_Sum_Corrected1, 70, 120, 103 * 2 * 8, 103 * 2 * 0.5);
 }
 
 /*===========================================
@@ -167,20 +174,31 @@ void setup()
 // int n = 693; // test encodeur
 int n = 694; // test PID
 // int n = 695; // test motors+encoders
-// int n = 696; // test Acceleration
+// int n = 696; // test speedchange
 // int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
 // int n = -1; // start of maquette
 // int n = 3000;
-
+int x = 0;
 void loop()
 {
+
+    if (x == 0)
+    {
+        lastTime = millis();
+    }
+    if (x == 1000)
+    {
+        Serial.println("1000 loops done in " + String(millis() - lastTime) + " ms");
+        Serial.println("1 loop per " + String(float(millis() - lastTime) / 1000) + " ms");
+        x = -1;
+    }
+    x++;
     unsigned int currentTime = millis();
     unsigned int currentEncL = get_encL();
     unsigned int currentEncR = get_encR();
     readSensors();
-   
 
     /*__________________________________MAQUETTE_____________________________________________________*/
     if (n == -1)
@@ -203,16 +221,7 @@ void loop()
     {
     }
     /*__________________________________DEBUGGING_______________________________________________________*/
-    if (n == 200)
-    {
-        setMotors(-10, -10);
-        delay(50);
-        setMotors(0, 0);
-        n = 201;
-    }
-    if (n == 201)
-    {
-    }
+
     if (n == 100)
     {
         setMotors(0, 0);
@@ -326,29 +335,11 @@ void loop()
         }
         DEBUG_LOG("Left Encoder: " + String(currentEncL) + " Right Encoder: " + String(currentEncR) + "\n");
     }
-    //-- test Acceleration
+    //-- test speedchange
     if (n == 696)
     {
 
-        if (get_phase() == 0 && !isSpeedChangeRunning())
-        {
-            DEBUG_LOGLN("phase 0 " + String(PID_Sum_Corrected1.basespeed));
-            reset_encoders();
-            startSpeedChange(&PID_Sum_Corrected1, 120, 255, 0, 103 * 2 * 2);
-        }
-        if (get_phase() == 1 && !isSpeedChangeRunning())
-        {
-            DEBUG_LOGLN("phase 1 " + String(PID_Sum_Corrected1.basespeed));
-            startSpeedChange(&PID_Sum_Corrected1, 255, 90, 103 * 3 * 2, 103 * 2 * 2);
-        }
-        if (get_phase() == 2 && !isSpeedChangeRunning())
-        {
-            DEBUG_LOGLN("done " + String(PID_Sum_Corrected1.basespeed));
-            setMotors(0, 0);
-            delay(2000);
-            n = 101;
-            return;
-        }
+        // TODO: add speed change test code
         PID_Sum_Corrected1.Compute();
         // setMotors(150,150);
     }
