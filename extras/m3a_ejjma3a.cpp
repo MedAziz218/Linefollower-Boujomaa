@@ -182,13 +182,13 @@ void setup()
 // int n = 690; // test sensors
 // int n = 692; // test motors
 // int n = 693; // test encodeur
-// int n = 694; // test PID
+int n = 694; // test PID
 // int n = 695; // test motors+encoders
 // int n = 696; // test speedchange
 // int n = 700; // test pin leds
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
-int n = -1; // start of maquette
+// int n = -1; // start of maquette
 
 void loop()
 {
@@ -233,16 +233,9 @@ void loop()
     }
     else if (n == 1)
     {
-        if (SpeedChanger.isEmpty() && somme <= 2)
+        if (get_encoders() > p2t(3.6))
         {
             show_checkpoint(n);
-
-            reset_encoders();
-
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 220);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(9), p2t(0.5));
-            // SpeedChanger.add(&PID_Sum_Corrected1, 170, 50, 103 * 8 * 3, 103 * 2 * 1);
             n++;
         }
         else
@@ -252,42 +245,152 @@ void loop()
     }
     else if (n == 2)
     {
-
         if (SpeedChanger.isEmpty() && somme <= 2)
         {
             show_checkpoint(n);
             reset_encoders();
-            while (!(cnt && somme == 3.5))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
 
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0.5), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2.5), p2t(0.5));
-            SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.5, -190, 210);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 200, p2t(1), p2t(0.5));
+
+            SpeedChanger.add(&PID_Sum_Corrected1, 200, 120, p2t(9), p2t(0.5));
+            // SpeedChanger.add(&PID_Sum_Corrected1, 170, 50, 103 * 8 * 3, 103 * 2 * 1);
             n++;
         }
         else
-        { 
+        {
             PID_Sum_Corrected1.Compute();
         }
     }
     else if (n == 3)
     {
-        if (SpeedChanger.isEmpty())
+        if (get_encoders() > p2t(1))
         {
             show_checkpoint(n);
-
-            n = 100;
+            n++;
         }
         else
         {
             PID_Sum_Corrected1.Compute();
         }
     }
+    else if (n == 4)
+    {
+        if (get_encoders() > p2t(9))
+        {
+            // kamana sinuset
+            show_checkpoint(n);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 5)
+    {
+        if (get_encoders() > p2t(0.5) && somme <= 2)
+        {
+            // wselna le dora isar 2
+            show_checkpoint(n);
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -240, 255);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(1), p2t(0.5));
+
+            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(3), p2t(0.5));
+            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 6)
+    {
+        if (get_encoders() > p2t(1))
+        {
+            // na9as 9bal dora 3
+            show_checkpoint(n);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 7)
+    {
+        if (get_encoders() > p2t(3))
+        {
+            // na9as 9bal dora 3
+            show_checkpoint(n);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n ==8)
+    {
+        if (get_encoders() > p2t(3.5) && somme <= 2)
+        {
+            // wselna le dora isar 3
+            show_checkpoint(n);
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -240, 255);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(1), p2t(0.5));
+
+            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(3.3), p2t(0.5));
+            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 9)
+    {
+        if (get_encoders() > p2t(1))
+        {
+            // na9as 9bal dora 3
+            show_checkpoint(n);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n ==10)
+    {
+        if (get_encoders() > p2t(3.3))
+        {
+            // na9as 9bal dora 3
+            show_checkpoint(n);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 11)
+    {
+        if (get_encoders() > p2t(3.5) && somme >= 5)
+        {
+            // na9as 9bal dora 3
+            show_checkpoint(n);
+           n=100;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+
 
     /*__________________________________DEBUGGING_______________________________________________________*/
 

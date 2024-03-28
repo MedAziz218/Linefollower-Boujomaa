@@ -61,7 +61,7 @@ public:
     int lastOnLineError;
     int lastError;
     // clang-format off
-    void setKp_kd_min_max(int p_kp, int p_kd, int p_minspeed, int p_maxspeed){kp = p_kp; kd = p_kd;minspeed = p_minspeed;maxspeed = p_maxspeed;}
+    void setKp_kd_min_max(float p_kp, float p_kd, int p_minspeed, int p_maxspeed){kp = p_kp; kd = p_kd;minspeed = p_minspeed;maxspeed = p_maxspeed;}
     void setKp(float p_kp){kp = p_kp;}
     void setKd(float p_kd){kd = p_kd;}
     void setBaseSpeed(int p_basespeed){basespeed = p_basespeed;}
