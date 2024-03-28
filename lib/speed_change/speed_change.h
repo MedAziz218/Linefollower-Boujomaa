@@ -94,7 +94,7 @@ public:
             .name = "MyTimerTask"};
         esp_timer_create(&timer_args, &timer_handle);
         // Start the timer to trigger the callback function every  (100 microseconds)
-        esp_timer_start_periodic(timer_handle, 50);
+        esp_timer_start_periodic(timer_handle, 10);
     }
     void add(_base_pid *_pid, int _startpeed, int _endspeed, int _startdist, int _durationdist)
     {
