@@ -3,13 +3,13 @@
 template <class T, int Capacity>
 class BoundedQueue
 {
-private:
+public:
     T *arr;
     int front;
     int rear;
     int size;
 
-public:
+
     BoundedQueue() : front(0), rear(0), size(0)
     {
         arr = new T[Capacity];

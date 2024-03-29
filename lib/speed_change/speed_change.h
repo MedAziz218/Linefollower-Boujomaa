@@ -13,9 +13,9 @@ struct _speedChangeTask
     _base_pid *chosen_pid_instance;
     int startpeed, endspeed;
     int startdist, enddist;
-    bool apply_when_done;
-    float kp,kd;
-    int minspeed,maxspeed;
+    int apply_when_done;
+    float kp, kd;
+    int minspeed, maxspeed;
 };
 
 class SpeedChanger_cls
@@ -23,28 +23,30 @@ class SpeedChanger_cls
 private:
     BoundedQueue<_speedChangeTask, 6> speedChangeQueue;
     bool _change_in_progress = false;
-    _speedChangeTask current_task;
+    _speedChangeTask *current_task;
     bool _update_speed_tick(void)
     {
         // x++;
-        _base_pid *chosen_pid_instance = current_task.chosen_pid_instance;
+        _base_pid *chosen_pid_instance = current_task->chosen_pid_instance;
         int currentspeed = chosen_pid_instance->basespeed;
         int nextspeed;
         unsigned int dist = get_encoders();
         // unsigned int dist = millis();
 
-        int startpeed = current_task.startpeed, endspeed = current_task.endspeed;
-        int startdist = current_task.startdist, enddist = current_task.enddist;
+        int startpeed = current_task->startpeed, endspeed = current_task->endspeed;
+        int startdist = current_task->startdist, enddist = current_task->enddist;
         nextspeed = map(dist, startdist, enddist, startpeed, endspeed);
         nextspeed = constrain(nextspeed, min(startpeed, endspeed), max(startpeed, endspeed));
         chosen_pid_instance->setBaseSpeed(nextspeed);
-        if (nextspeed == endspeed)
+        if (nextspeed == endspeed && dist>= enddist)
         {
             // DEBUG_PRINT("End Acceleration: " + String(chosen_pid_instance->basespeed)+" millis: "+String(dist) );
             // DEBUG_PRINTLN(" x " + String(x));
             _change_in_progress = false;
-            if (current_task.apply_when_done){
-                chosen_pid_instance->setKp_kd_min_max(current_task.kp, current_task.kd, current_task.minspeed, current_task.maxspeed);
+            if (current_task->apply_when_done)
+            {
+                // Serial.println("yes kp:" + String(current_task->kp) + " kd:" + String(current_task->kd) + " minspeed:" + String(current_task->minspeed) + " maxspeed:" + String(current_task->maxspeed));
+                chosen_pid_instance->setKp_kd_min_max(current_task->kp, current_task->kd, current_task->minspeed, current_task->maxspeed);
             }
             return false;
         }
@@ -60,12 +62,16 @@ private:
         {
             _change_in_progress = _update_speed_tick();
             if (!_change_in_progress && !speedChangeQueue.isEmpty())
+            {
+                // Serial.println("ended -- front:" + String(speedChangeQueue.front) + " rear:" + String(speedChangeQueue.rear) + " maxspeed of current task:" + String(current_task->maxspeed) + " apply_when_done:" + String(current_task->apply_when_done));
                 speedChangeQueue.dequeue();
+            }
         }
         if (!_change_in_progress && !speedChangeQueue.isEmpty())
         {
-            current_task = speedChangeQueue.peek();
+            current_task = &speedChangeQueue.peek();
             _change_in_progress = _update_speed_tick();
+            // Serial.println("started -- front:" + String(speedChangeQueue.front) + " rear:" + String(speedChangeQueue.rear) + " maxspeed of current task:" + String(current_task->maxspeed) + " apply_when_done:" + String(current_task->apply_when_done));
         }
     }
     static void taskEntryPoint(void *pvParameters)
@@ -79,7 +85,8 @@ private:
 
 public:
     bool started = false;
-    bool isEmpty(){
+    bool isEmpty()
+    {
         return !_change_in_progress && speedChangeQueue.isEmpty();
     }
     void begin()
@@ -100,20 +107,23 @@ public:
     {
         if (!speedChangeQueue.isFull())
         {
-            speedChangeQueue.enqueue( {_pid, _startpeed, _endspeed, _startdist, _startdist + _durationdist,false,0,0,0,0});
-            if (!_change_in_progress){
+            speedChangeQueue.enqueue({_pid, _startpeed, _endspeed, _startdist, _startdist + _durationdist, 0, 0, 0, 0, 0});
+            if (!_change_in_progress)
+            {
                 tick();
             }
         }
     };
-    void add_apply_when_done(float kp, float kd, int minspeed, int maxspeed){
-        if (!speedChangeQueue.isEmpty()){
+    void add_apply_when_done(float kp, float kd, int minspeed, int maxspeed)
+    {
+        if (!speedChangeQueue.isEmpty())
+        {
             _speedChangeTask &tk = speedChangeQueue.peekRear();
             tk.kp = kp;
             tk.kd = kd;
             tk.minspeed = minspeed;
             tk.maxspeed = maxspeed;
-            tk.apply_when_done = true;
+            tk.apply_when_done = 1;
         }
     }
 };

@@ -94,8 +94,9 @@ void waitForSecondButton()
     pinMode(32, INPUT_PULLUP);
     while (digitalRead(32))
     {
-        DEBUG_LOGLN("hola");
+        // DEBUG_LOGLN("hola");
     }
+    delay(200);
 }
 /*===========================================
              Global Variables
@@ -189,7 +190,7 @@ void setup()
 // int n = 100; // debugging
 // int n = 201; // test distance sensor
 int n = -1; // start of maquette
-
+// int n= 7;
 void loop()
 {
 
@@ -223,7 +224,7 @@ void loop()
             // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
 
             SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(3.6), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
+            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 255);
             n++;
         }
         else
@@ -239,12 +240,13 @@ void loop()
             show_checkpoint(n);
             reset_encoders();
 
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 220);
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 255);
             SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(9), p2t(0.5));
+            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(2), p2t(0.5));
 
             // SpeedChanger.add(&PID_Sum_Corrected1, 170, 50, 103 * 8 * 3, 103 * 2 * 1);
             n++;
+         
         }
         else
         {
@@ -252,6 +254,40 @@ void loop()
         }
     }
     else if (n == 2)
+    {
+        if (SpeedChanger.isEmpty()&& somme >=5)
+        {
+            show_checkpoint(n);
+            reset_encoders();
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
+            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(2), p2t(0.5));
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    
+    else if (n == 3)
+    {
+        if (SpeedChanger.isEmpty() )
+        {   
+            reset_encoders();
+            while (!(cnt && somme ==3.5 ) || get_encoders()<p2t(4) ){
+                readSensors();
+                PID_Sum_Corrected1.Compute();
+            }
+            reset_encoders();
+            
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 4)
     {
 
         if (SpeedChanger.isEmpty() && somme <= 2)
@@ -277,7 +313,7 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 3)
+    else if (n == 5)
     {
         if (SpeedChanger.isEmpty() && somme >= 5)
         {
@@ -306,7 +342,7 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 4)
+    else if (n == 6)
     {
         if (SpeedChanger.isEmpty() && somme >= 5)
         {
@@ -326,7 +362,7 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 5)
+    else if (n == 7)
     {
         if (cnt && somme == 3.5)
         {
@@ -346,7 +382,7 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 6)
+    else if (n == 8)
     {
         if (SpeedChanger.isEmpty() && somme <= 2)
         {
@@ -371,23 +407,24 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 7)
+    else if (n == 9)
     {
         if (SpeedChanger.isEmpty() && somme <= 2)
         {
             reset_encoders();
             SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.9, 0.75, 100, 100);
+            SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
             SpeedChanger.add(&PID_Sum_Corrected1, 170, 255, p2t(1.55), p2t(0.5));
             SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(8), p2t(0.5));
             n++;
+            
         }
         else
         {
             PID_Sum_Corrected1.Compute();
         }
     }
-    else if (n == 8)
+    else if (n == 10)
     {
         if (SpeedChanger.isEmpty())
         {
@@ -400,6 +437,7 @@ void loop()
             PID_Sum_Corrected1.Compute();
         }
     }
+
 
     /*__________________________________DEBUGGING_______________________________________________________*/
 
