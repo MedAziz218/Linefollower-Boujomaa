@@ -304,7 +304,7 @@ void loop()
             reset_encoders();
             PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
             SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2.0), p2t(0.5));
+            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(1.85), p2t(0.5));
             SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
             n++;
         }
@@ -333,7 +333,7 @@ void loop()
                 PID_Sum_Corrected1.setKp_kd_min_max(1.9, 1, -240, 255);
                 SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
                 SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2.9), p2t(0.5));
-                SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
+                SpeedChanger.add_apply_when_done(1.5, 0.2, -150, 220); // u turn pid values
                 n++;
             }
         }
@@ -348,7 +348,7 @@ void loop()
         {
             // dora 5ayba ( U turn )
             reset_encoders();
-            while (!(cnt && somme == 3.5 && get_encoders() > p2t(2)))
+            while (!(cnt && somme == 3.5 && get_encoders() > p2t(2.2)))
             {
 
                 readSensors();
@@ -364,9 +364,9 @@ void loop()
     }
     else if (n == 7)
     {
-        if (cnt && somme == 3.5)
+        if (1)
         {
-            // start ba3d carro
+            // ba3d u turn bethabt
             show_checkpoint(n);
             reset_encoders();
             PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
@@ -386,10 +386,10 @@ void loop()
     {
         if (SpeedChanger.isEmpty() && somme <= 2)
         {
-            // dora 1 ba3d sinuset (isar)
+            // dora 1 ba3d el U turn
             show_checkpoint(n);
             reset_encoders();
-            while (!(cnt && somme == 3.5))
+            while (!(cnt && somme == 3.5 ) || get_encoders() < p2t(0.8)  )
             {
                 readSensors();
                 PID_Sum_Corrected1.Compute();
@@ -401,6 +401,7 @@ void loop()
             SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(1), p2t(0.5));
             SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
             n++;
+            // n= 100;
         }
         else
         {
@@ -411,11 +412,18 @@ void loop()
     {
         if (SpeedChanger.isEmpty() && somme <= 2)
         {
+            // dora 2 ba3d el U turn (isar)
+
             reset_encoders();
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 170, 255, p2t(1.55), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(8), p2t(0.5));
+            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 220);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 180, p2t(1), p2t(0.5));
+
+            
+            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
+            SpeedChanger.add(&PID_Sum_Corrected1, 180, 120, p2t(7.5), p2t(0.5)); // nos dora lkbira
+            
+            // SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
+        
             n++;
             
         }
@@ -426,18 +434,83 @@ void loop()
     }
     else if (n == 10)
     {
-        if (SpeedChanger.isEmpty())
+        if (SpeedChanger.isEmpty() && somme <= 2)
         {
-            reset_encoders();
+            // dora 2 ba3d el nos dora lekbira (isar)
 
-            n = 100;
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 180, p2t(2), p2t(0.5));
+            // SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
+        
+            n++;
+            
         }
         else
         {
             PID_Sum_Corrected1.Compute();
         }
     }
+    else if (n == 11)
+    {
+        if (SpeedChanger.isEmpty())
+        {   
+            // last n-1
+            reset_encoders();
+            while (!(cnt && somme == 3.5 ))
+            {
+                readSensors();
+                PID_Sum_Corrected1.Compute();
+            }
+            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.7));
+            // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
 
+            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2), p2t(0.5));
+            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 255);
+            n++;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
+    else if (n == 12)
+    {
+        if (SpeedChanger.isEmpty() && somme <= 2)
+        {
+            // dora 1 ba3d el U turn
+            show_checkpoint(n);
+            reset_encoders();
+           
+            while (!(cnt && somme == 3.5 ) || get_encoders() < p2t(0.8)  )
+            {
+                readSensors();
+                PID_Sum_Corrected1.Compute();
+            }
+            
+            reset_encoders();
+            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
+            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
+            n++;
+            // n= 100;
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }else if (n == 13)
+    {
+        if (SpeedChanger.isEmpty() && cnt>=6)
+        {
+            n=100;
+            
+        }
+        else
+        {
+            PID_Sum_Corrected1.Compute();
+        }
+    }
 
     /*__________________________________DEBUGGING_______________________________________________________*/
 
