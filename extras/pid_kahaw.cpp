@@ -208,312 +208,39 @@ void loop()
             n++;
             lastTime = millis();
             reset_encoders();
+            // PID_Sum_Corrected1.setBaseSpeed(150);
+            // PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -240, 255);
             PID_Sum_Corrected1.setBaseSpeed(150);
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 1, -240, 255);
+            PID_Sum_Corrected1.setKp_kd_min_max(1.4, 1, -150, 250);
         }
     }
     else if (n == 0)
     {
-        if (cnt && somme == 3.5)
-        {
-            // start ba3d carro
-            show_checkpoint(n);
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 150, 255, p2t(0), p2t(0.5));
-            // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
 
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(3.6), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 255);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 1)
-    {
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // debut sinsuet
-            show_checkpoint(n);
-            reset_encoders();
-
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(2), p2t(0.5));
-
-            // SpeedChanger.add(&PID_Sum_Corrected1, 170, 50, 103 * 8 * 3, 103 * 2 * 1);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 2)
-    {
-        if (SpeedChanger.isEmpty() && somme >= 5)
-        {
-            show_checkpoint(n);
-            reset_encoders();
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 170, p2t(1), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 170, 120, p2t(2), p2t(0.5));
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-
-    else if (n == 3)
-    {
-        if (SpeedChanger.isEmpty())
-        {
-            reset_encoders();
-            while (!(cnt && somme == 3.5) || get_encoders() < p2t(3.5))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-            reset_encoders();
-
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 4)
-    {
-
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // dora 1 ba3d sinuset (isar)
-            show_checkpoint(n);
-            reset_encoders();
-            while (!(cnt && somme == 3.5))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(1.85), p2t(0.5));
-            SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 5)
-    {
-        if (SpeedChanger.isEmpty() && somme >= 5)
-        {
-            if (SpeedChanger.isEmpty() && somme >= 5)
-            {
-                // dora 2 ba3d sinuset (imin)
-
-                show_checkpoint(n);
-                reset_encoders();
-                while (!(cnt && somme == 3.5))
-                {
-                    readSensors();
-                    PID_Sum_Corrected1.Compute();
-                }
-
-                reset_encoders();
-                PID_Sum_Corrected1.setKp_kd_min_max(1.9, 1, -240, 255);
-                SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
-                SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2.9), p2t(0.5));
-                SpeedChanger.add_apply_when_done(1.5, 0.2, -150, 220); // u turn pid values
-                n++;
-            }
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 6)
-    {
-        if (SpeedChanger.isEmpty() && somme >= 5)
-        {
-            // dora 5ayba ( U turn )
-            reset_encoders();
-            while (!(cnt && somme == 3.5 && get_encoders() > p2t(2.2)))
-            {
-
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-            show_checkpoint(n);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 7)
-    {
-        if (1)
-        {
-            // ba3d u turn bethabt
-            show_checkpoint(n);
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 150, 255, p2t(0), p2t(0.5));
-            // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
-
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 8)
-    {
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // dora 1 ba3d el U turn
-            show_checkpoint(n);
-            reset_encoders();
-            while (!(cnt && somme == 3.5) || get_encoders() < p2t(0.8))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(1), p2t(0.5));
-            SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
-            n++;
-            // n= 100;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 9)
-    {
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // dora 2 ba3d el U turn (isar)
-
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(2, 0.2, -150, 220);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 180, p2t(1), p2t(0.5));
-
-            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 250);
-            SpeedChanger.add(&PID_Sum_Corrected1, 180, 120, p2t(7.5), p2t(0.5)); // nos dora lkbira
-
-            // SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
-
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 10)
-    {
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // dora 2 ba3d el nos dora lekbira (isar)
-
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.2, 0.2, -150, 250);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 180, p2t(2), p2t(0.5));
-            // SpeedChanger.add_apply_when_done(2, 0.2, -150, 220);
-
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 11)
-    {
-        if (SpeedChanger.isEmpty())
-        {
-            // last n-1
-            reset_encoders();
-            while (!(cnt && somme == 3.5))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.7));
-            // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
-
-            SpeedChanger.add(&PID_Sum_Corrected1, 255, 120, p2t(2), p2t(0.5));
-            SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 255);
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 12)
-    {
-        if (SpeedChanger.isEmpty() && somme <= 2)
-        {
-            // dora 1 ba3d el U turn
-            show_checkpoint(n);
-            reset_encoders();
-
-            while (!(cnt && somme == 3.5) || get_encoders() < p2t(0.8))
-            {
-                readSensors();
-                PID_Sum_Corrected1.Compute();
-            }
-
-            reset_encoders();
-            PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
-            SpeedChanger.add(&PID_Sum_Corrected1, 120, 255, p2t(0), p2t(0.5));
-            n++;
-            // n= 100;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 13)
-    {
-        if (SpeedChanger.isEmpty() && get_encoders() > p2t(5))
-        {
-            n++;
-        }
-        else
-        {
-            PID_Sum_Corrected1.Compute();
-        }
-    }
-    else if (n == 14)
-    {
-        PID_Sum_Corrected1.setBaseSpeed(150);
-        PID_Sum_Corrected1.setKp_kd_min_max(1.4, 1, -150, 250);
         PID_Sum_Corrected1.Compute();
     }
+    // else if (n == 0)
+    // {
+    //     if (cnt && somme == 3.5)
+    //     {
+    //         // start ba3d carro
+    //         show_checkpoint(n);
+    //         reset_encoders();
+    //         PID_Sum_Corrected1.setKp_kd_min_max(1.9, 0.75, -240, 255);
+    //         SpeedChanger.add(&PID_Sum_Corrected1, 150, 255, p2t(0), p2t(0.5));
+    //         // SpeedChanger.add_apply_when_done(1.9, 0.75, -240, 255);
+
+    //         SpeedChanger.add(&PID_Sum_Corrected1, 255, 170, p2t(3.6), p2t(0.5));
+    //         // SpeedChanger.add_apply_when_done(1.2, 0.2, -150, 255);
+    //         SpeedChanger.add_apply_when_done(2, 1, -220, 220);
+
+    //         n++;
+    //     }
+    //     else
+    //     {
+    //         PID_Sum_Corrected1.Compute();
+    //     }
+    //
 
     /*__________________________________DEBUGGING_______________________________________________________*/
 
