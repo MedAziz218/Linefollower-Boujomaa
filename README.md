@@ -1,7 +1,7 @@
 # Linefollower-Boujomaa
-This repository contains the initial codebase for my line-follower robot named Boujomaa. T
+This repository contains the initial codebase for my line-follower robot named Boujomaa. 
 
-he robot utilizes encoders, TCRT5000 IR sensors, motor encoders, and an ESP32 microcontroller. 
+The robot utilizes encoders, TCRT5000 IR sensors, motor encoders, and an ESP32 microcontroller. 
 
 The code is developed using PlatformIO and Arduino specifically for the ESP32 platform. 
 
